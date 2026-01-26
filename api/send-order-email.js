@@ -19,15 +19,15 @@ export default async function handler(req, res) {
     const orderData = req.body;
 
     // Get environment variables
-    const emailUser = process.env.VITE_EMAIL_USER;
-    const emailPass = process.env.VITE_EMAIL_PASS;
-    const emailTo = process.env.VITE_EMAIL_TO || emailUser;
+    const emailUser = process.env.VITE_MAIL_FROM;
+    const emailPass = process.env.MAIL_PASSWORD;
+    const emailTo = process.env.MAIL_TO || emailUser;
 
     if (!emailUser || !emailPass) {
       console.error('Missing email configuration');
-      return res.status(500).json({ 
-        success: false, 
-        error: 'Email configuration missing. Please add VITE_EMAIL_USER and VITE_EMAIL_PASS in Vercel environment variables.' 
+      return res.status(500).json({
+        success: false,
+        error: 'Email configuration missing. Please add VITE_MAIL_FROM and MAIL_PASSWORD in Vercel environment variables.'
       });
     }
 
