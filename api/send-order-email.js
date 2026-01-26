@@ -1,4 +1,6 @@
-// Vercel Serverless Function for sending order emails
+// Vercel Serverless Function for sending order emails via SMTP
+import nodemailer from 'nodemailer';
+
 export default async function handler(req, res) {
   // Enable CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -19,40 +21,74 @@ export default async function handler(req, res) {
     const orderData = req.body;
 
     // Get environment variables
-    const emailUser = process.env.VITE_MAIL_FROM;
-    const emailPass = process.env.MAIL_PASSWORD;
-    const emailTo = process.env.MAIL_TO || emailUser;
+    const emailFrom = process.env.VITE_MAIL_FROM;
+    const emailPassword = process.env.MAIL_PASSWORD;
+    const emailTo = process.env.MAIL_TO || emailFrom;
+    const smtpHost = process.env.VITE_MAIL_HOST || 'c1120075.sgvps.net';
+    const smtpPort = parseInt(process.env.VITE_MAIL_PORT || '465');
 
-    if (!emailUser || !emailPass) {
+    if (!emailFrom || !emailPassword) {
       console.error('Missing email configuration');
-      return res.status(500).json({
-        success: false,
-        error: 'Email configuration missing. Please add VITE_MAIL_FROM and MAIL_PASSWORD in Vercel environment variables.'
+      return res.status(500).json({ 
+        success: false, 
+        error: 'Email configuration missing. Please add VITE_MAIL_FROM and MAIL_PASSWORD in Vercel environment variables.' 
       });
     }
 
-    // Format the email content
-    const emailContent = formatEmailContent(orderData);
-    const htmlContent = formatEmailHTML(orderData);
-
-    // Log the order for debugging
-    console.log('Order received:', {
-      email: orderData.email,
-      name: `${orderData.firstName} ${orderData.lastName}`,
-      items: orderData.cartItems?.length || 0
+    // Create nodemailer transporter
+    const transporter = nodemailer.createTransport({
+      host: smtpHost,
+      port: smtpPort,
+      secure: true, // true for 465, false for other ports
+      auth: {
+        user: emailFrom,
+        pass: emailPassword,
+      },
+      tls: {
+        rejectUnauthorized: false // Accept self-signed certificates
+      }
     });
 
-    // Use nodemailer to send email
-    // Note: You'll need to add nodemailer as a dependency
-    // For now, we'll just return success
-    // In production, integrate with SendGrid, Resend, or AWS SES
+    // Verify SMTP connection
+    try {
+      await transporter.verify();
+      console.log('SMTP connection verified successfully');
+    } catch (verifyError) {
+      console.error('SMTP verification failed:', verifyError);
+      return res.status(500).json({
+        success: false,
+        error: 'SMTP connection failed. Please check your email configuration.'
+      });
+    }
+
+    // Format email HTML
+    const emailHTML = formatEmailHTML(orderData);
+    const emailText = formatEmailText(orderData);
+
+    // Send email
+    const mailOptions = {
+      from: `"Kozijnen Configurator" <${emailFrom}>`,
+      to: emailTo,
+      subject: `Nieuwe Orderaanvraag - ${orderData.firstName} ${orderData.lastName}`,
+      text: emailText,
+      html: emailHTML,
+    };
+
+    const info = await transporter.sendMail(mailOptions);
     
+    console.log('Email sent successfully:', {
+      messageId: info.messageId,
+      to: emailTo,
+      from: emailFrom
+    });
+
     return res.status(200).json({ 
       success: true, 
-      message: 'Order received successfully',
+      message: 'Order received and email sent successfully',
       data: {
         email: orderData.email,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        messageId: info.messageId
       }
     });
 
@@ -65,7 +101,7 @@ export default async function handler(req, res) {
   }
 }
 
-function formatEmailContent(data) {
+function formatEmailText(data) {
   const cartSummary = data.cartItems
     ?.map((item, index) => 
       `${index + 1}. ${item.productName || 'Product'} - ${item.quantity || 1}x`
@@ -123,6 +159,13 @@ function formatEmailHTML(data) {
               ${item.configuration ? `<div><strong>Configuratie:</strong> ${item.configuration}</div>` : ''}
               ${item.panels ? `<div><strong>Panelen:</strong> ${item.panels}</div>` : ''}
               ${item.width || item.height ? `<div><strong>Afmetingen:</strong> ${item.width || '?'}mm x ${item.height || '?'}mm</div>` : ''}
+              ${getColor(item, 'insideColorName') || getColor(item, 'inside') ? `<div><strong>Kleur binnenkant:</strong> ${getColor(item, 'insideColorName') || getColor(item, 'inside')}</div>` : ''}
+              ${getColor(item, 'outsideFixedColorName') || getColor(item, 'outsideFixed') ? `<div><strong>Kleur buitenkant vast deel:</strong> ${getColor(item, 'outsideFixedColorName') || getColor(item, 'outsideFixed')}</div>` : ''}
+              ${getColor(item, 'outsideMovingColorName') || getColor(item, 'outsideMoving') ? `<div><strong>Kleur buitenkant beweegbare delen:</strong> ${getColor(item, 'outsideMovingColorName') || getColor(item, 'outsideMoving')}</div>` : ''}
+              ${item.glassTypeName ? `<div><strong>Glastype:</strong> ${item.glassTypeName}</div>` : ''}
+              ${item.glassFinishName ? `<div><strong>Glasafwerking:</strong> ${item.glassFinishName}</div>` : ''}
+              ${item.direction ? `<div><strong>Richting:</strong> ${item.direction}</div>` : ''}
+              ${item.screens ? `<div><strong>Schermen:</strong> ${item.screens}</div>` : ''}
               <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #ddd;">
                 <strong style="color: #B59871;">✓ Aantal: ${item.quantity || 1}</strong>
               </div>
@@ -151,7 +194,7 @@ function formatEmailHTML(data) {
         <div style="margin: 25px 0;">
           <div style="font-weight: bold; font-size: 16px; margin: 15px 0 12px 0; color: #333; padding-bottom: 8px; border-bottom: 2px solid #B59871;">👤 Contactgegevens</div>
           <div style="padding: 10px 0; border-bottom: 1px solid #eee;"><strong>Naam:</strong> ${data.firstName} ${data.lastName}</div>
-          <div style="padding: 10px 0; border-bottom: 1px solid #eee;"><strong>E-mail:</strong> ${data.email}</div>
+          <div style="padding: 10px 0; border-bottom: 1px solid #eee;"><strong>E-mail:</strong> <a href="mailto:${data.email}" style="color: #B59871; text-decoration: none;">${data.email}</a></div>
           <div style="padding: 10px 0; border-bottom: 1px solid #eee;"><strong>Telefoon:</strong> +31 ${data.phone}</div>
         </div>
 
@@ -178,6 +221,7 @@ function formatEmailHTML(data) {
       <div style="background: #f5f5f5; padding: 20px; text-align: center; font-size: 12px; color: #666; border-top: 1px solid #eee;">
         <p style="margin: 5px 0;"><strong>Dit bericht is automatisch gegenereerd door de Kozijnen Configurator</strong></p>
         <p style="margin: 5px 0;">Datum en tijd: ${new Date().toLocaleString('nl-NL')}</p>
+        <p style="margin-top: 15px; color: #999;">Wij behandelen uw aanvraag zo spoedig mogelijk.</p>
       </div>
     </div>
   </body>
