@@ -23,7 +23,7 @@ export default async function handler(req, res) {
     // Get environment variables
     const emailFrom = process.env.VITE_MAIL_FROM;
     const emailPassword = process.env.MAIL_PASSWORD;
-    const emailTo = process.env.MAIL_TO || emailFrom;
+    const emailTo = process.env.MAIL_TO || 'finnservers@gmail.com';
     const smtpHost = process.env.VITE_MAIL_HOST || 'c1120075.sgvps.net';
     const smtpPort = parseInt(process.env.VITE_MAIL_PORT || '465');
 
