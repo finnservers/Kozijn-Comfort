@@ -107,8 +107,13 @@ export function CheckoutPage() {
       const result = await response.json();
       
       if (result.success) {
+        // Show success message
         alert('Bedankt voor uw aanvraag! We nemen zo snel mogelijk contact met u op.\n\nU ontvangt een bevestigingsmail op het opgegeven e-mailadres.');
-        navigate('/overview');
+        
+        // Use setTimeout to ensure alert is closed before navigation
+        setTimeout(() => {
+          navigate('/overview', { replace: true });
+        }, 100);
       } else {
         alert(`Er was een probleem: ${result.error || 'Probeer het later opnieuw.'}`);
       }
