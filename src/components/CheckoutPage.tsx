@@ -1,9 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
-import { ArrowLeft, ChevronDown, Plus } from 'lucide-react';
+import { ArrowLeft, Plus } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
-import { Label } from './ui/label';
 import { useCart } from '../context/CartContext';
 import logo from 'figma:asset/07b8f6cb8cf9ec9c0f2d2950a7eeb8463aef1f1e.png';
 import {

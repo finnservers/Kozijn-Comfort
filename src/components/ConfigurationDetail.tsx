@@ -4,7 +4,6 @@ import { ArrowLeft, Minus, Plus, ShoppingCart } from 'lucide-react';
 import { Button } from './ui/button';
 import { Slider } from './ui/slider';
 import { RadioGroup, RadioGroupItem } from './ui/radio-group';
-import { Label } from './ui/label';
 import { WindowVisual } from './WindowVisual';
 import { useCart } from '../context/CartContext';
 import { Badge } from './ui/badge';

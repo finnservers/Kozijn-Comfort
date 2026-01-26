@@ -4,7 +4,7 @@ interface WindowVisualProps {
   type: string;
 }
 
-export function WindowVisual({ configuration, panels, type }: WindowVisualProps) {
+export function WindowVisual({ configuration }: WindowVisualProps) {
   const renderWindow = () => {
     // Window types (kozijnen)
     switch (configuration) {
