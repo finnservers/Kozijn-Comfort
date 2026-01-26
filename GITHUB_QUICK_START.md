@@ -21,10 +21,10 @@ git init
 git add .
 
 # Create first commit
-git commit -m "Initial commit: Kozijnen Configurator"
+git commit -m "Initial commit: Kozijn-Comfort project"
 
 # Create repository on GitHub first, then:
-git remote add origin https://github.com/YOUR_USERNAME/REPO_NAME.git
+git remote add origin https://github.com/YOUR_USERNAME/kozijn-comfort.git
 git branch -M main
 git push -u origin main
 ```

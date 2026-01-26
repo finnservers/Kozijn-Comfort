@@ -2,7 +2,7 @@
 
 ## What I've Prepared For You
 
-I've created everything you need to upload your Kozijnen Configurator to GitHub safely:
+I've created everything you need to upload your Kozijn-Comfort project to GitHub safely:
 
 ### ✅ Files Created:
 1. **`.gitignore`** - Protects sensitive files (`.env.local`, `node_modules/`)
@@ -31,18 +31,18 @@ git config --global user.email "your.email@example.com"
 # Initialize and commit
 git init
 git add .
-git commit -m "Initial commit: Kozijnen Configurator"
+git commit -m "Initial commit: Kozijn-Comfort project"
 ```
 
 ### Step 3: Upload to GitHub
 1. **Create repository:** https://github.com/new
-   - Name: `kozijnen-configurator`
+   - Name: `kozijn-comfort`
    - Don't check any boxes
    - Click "Create repository"
 
 2. **Push your code** (replace YOUR_USERNAME):
 ```bash
-git remote add origin https://github.com/YOUR_USERNAME/kozijnen-configurator.git
+git remote add origin https://github.com/YOUR_USERNAME/kozijn-comfort.git
 git branch -M main
 git push -u origin main
 ```
@@ -70,7 +70,7 @@ Once on GitHub, deploy to **Vercel** (easiest option):
 1. Go to https://vercel.com
 2. Click "Sign in with GitHub"
 3. Click "Add New" → "Project"
-4. Select your `kozijnen-configurator` repository
+4. Select your `kozijn-comfort` repository
 5. Add environment variables:
    ```
    VITE_EMAIL_USER = your-email@gmail.com

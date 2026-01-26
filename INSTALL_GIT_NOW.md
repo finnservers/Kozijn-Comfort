@@ -72,15 +72,15 @@ git add .
 ## Step 8: Create First Commit
 
 ```bash
-git commit -m "Initial commit: Kozijnen Configurator project"
+git commit -m "Initial commit: Kozijn-Comfort project"
 ```
 
 ## Step 9: Create GitHub Repository
 
 1. **Go to GitHub:** https://github.com/new
 2. **Sign in** (or create account if needed)
-3. **Repository name:** `kozijnen-configurator`
-4. **Description:** "Window and door configurator application"
+3. **Repository name:** `kozijn-comfort`
+4. **Description:** "Kozijn-Comfort - Window and door configurator application"
 5. **Choose:** Public or Private
 6. **IMPORTANT:** Do NOT check any boxes (no README, no .gitignore, no license)
 7. **Click:** "Create repository"
@@ -90,7 +90,7 @@ git commit -m "Initial commit: Kozijnen Configurator project"
 After creating the repository, GitHub will show you commands. Copy YOUR repository URL and run:
 
 ```bash
-git remote add origin https://github.com/YOUR_USERNAME/kozijnen-configurator.git
+git remote add origin https://github.com/YOUR_USERNAME/kozijn-comfort.git
 git branch -M main
 git push -u origin main
 ```
@@ -99,7 +99,7 @@ git push -u origin main
 
 Example:
 ```bash
-git remote add origin https://github.com/usamakhan/kozijnen-configurator.git
+git remote add origin https://github.com/usamakhan/kozijn-comfort.git
 git branch -M main
 git push -u origin main
 ```
@@ -124,7 +124,7 @@ After uploading to GitHub, deploy to **Vercel** (recommended):
 1. Go to https://vercel.com
 2. Sign in with GitHub
 3. Click "Add New" → "Project"
-4. Import your `kozijnen-configurator` repository
+4. Import your `kozijn-comfort` repository
 5. Add environment variables:
    - `VITE_EMAIL_USER` = your email
    - `VITE_EMAIL_PASS` = your app password

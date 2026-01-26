@@ -31,20 +31,20 @@ git add .
 
 STEP 6: Create First Commit
 ---------------------------------
-git commit -m "Initial commit: Kozijnen Configurator project"
+git commit -m "Initial commit: Kozijn-Comfort project"
 
 
 STEP 7: Create GitHub Repository
 ---------------------------------
 1. Go to: https://github.com/new
-2. Repository name: kozijnen-configurator
+2. Repository name: kozijn-comfort
 3. Do NOT check any boxes
 4. Click "Create repository"
 
 
 STEP 8: Connect and Push (Replace YOUR_USERNAME)
 ---------------------------------
-git remote add origin https://github.com/YOUR_USERNAME/kozijnen-configurator.git
+git remote add origin https://github.com/YOUR_USERNAME/kozijn-comfort.git
 git branch -M main
 git push -u origin main
 

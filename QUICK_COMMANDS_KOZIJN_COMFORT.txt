@@ -1,0 +1,62 @@
+===============================================
+KOZIJN-COMFORT - GitHub Upload Commands
+===============================================
+
+STEP 1: Install Git
+-------------------
+Download: https://git-scm.com/download/win
+Then RESTART VSCode!
+
+
+STEP 2: Configure Git (Use YOUR email)
+---------------------------------------
+git config --global user.name "Your Name"
+git config --global user.email "your-email@gmail.com"
+
+
+STEP 3: Initialize & Commit
+----------------------------
+git init
+git add .
+git commit -m "Initial commit: Kozijn-Comfort project"
+
+
+STEP 4: Create GitHub Repository
+---------------------------------
+Go to: https://github.com/new
+- Repository name: kozijn-comfort
+- Don't check any boxes
+- Click "Create repository"
+
+
+STEP 5: Push to GitHub (Replace YOUR_USERNAME)
+-----------------------------------------------
+git remote add origin https://github.com/YOUR_USERNAME/kozijn-comfort.git
+git branch -M main
+git push -u origin main
+
+
+STEP 6: Deploy to Vercel
+-------------------------
+1. Go to: https://vercel.com
+2. Sign in with GitHub
+3. Import "kozijn-comfort" repository
+4. Add environment variables:
+   - VITE_EMAIL_USER
+   - VITE_EMAIL_PASS
+   - VITE_EMAIL_TO
+5. Click Deploy
+
+
+===============================================
+PROTECTED FILES (Safe - Won't Upload)
+===============================================
+✓ .env.local
+✓ node_modules/
+✓ node_modules.zip
+
+
+===============================================
+PROJECT: Kozijn-Comfort
+Window and door configurator application
+===============================================
