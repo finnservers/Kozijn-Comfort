@@ -1,0 +1,82 @@
+===============================================
+COMMANDS TO RUN - Copy and paste these
+===============================================
+
+STEP 1: Download and Install Git
+---------------------------------
+Download from: https://git-scm.com/download/win
+Then RESTART VSCode completely!
+
+
+STEP 2: Verify Git is Installed
+---------------------------------
+git --version
+
+
+STEP 3: Configure Git (Replace with YOUR info)
+---------------------------------
+git config --global user.name "Your Name"
+git config --global user.email "your.email@example.com"
+
+
+STEP 4: Initialize Repository
+---------------------------------
+git init
+
+
+STEP 5: Stage All Files
+---------------------------------
+git add .
+
+
+STEP 6: Create First Commit
+---------------------------------
+git commit -m "Initial commit: Kozijnen Configurator project"
+
+
+STEP 7: Create GitHub Repository
+---------------------------------
+1. Go to: https://github.com/new
+2. Repository name: kozijnen-configurator
+3. Do NOT check any boxes
+4. Click "Create repository"
+
+
+STEP 8: Connect and Push (Replace YOUR_USERNAME)
+---------------------------------
+git remote add origin https://github.com/YOUR_USERNAME/kozijnen-configurator.git
+git branch -M main
+git push -u origin main
+
+
+STEP 9: Verify on GitHub
+---------------------------------
+Go to your repository URL and check files are there!
+
+
+===============================================
+PROTECTED FILES (Won't be uploaded)
+===============================================
+✓ .env.local (your email password is safe)
+✓ node_modules/ (too large)
+✓ node_modules.zip (backup file)
+
+
+===============================================
+AFTER GITHUB: DEPLOY TO VERCEL
+===============================================
+1. Go to: https://vercel.com
+2. Sign in with GitHub
+3. Import your repository
+4. Add these environment variables:
+   - VITE_EMAIL_USER
+   - VITE_EMAIL_PASS
+   - VITE_EMAIL_TO
+5. Click Deploy
+6. Done! Your site is live!
+
+
+===============================================
+NEED HELP?
+===============================================
+See detailed guide: INSTALL_GIT_NOW.md

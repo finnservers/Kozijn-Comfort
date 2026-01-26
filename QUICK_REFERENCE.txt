@@ -1,0 +1,130 @@
+# 🎯 QUICK REFERENCE CARD - SiteGround Deployment
+
+Print this or keep it handy during deployment!
+
+---
+
+## 📌 YOUR SITEGROUND SMTP INFO (Given)
+```
+Server:  c1120075.sgvps.net
+SMTP:    Port 465
+Security: SSL/TLS
+```
+
+---
+
+## 1️⃣ CREATE EMAILS IN SITEGROUND
+
+| Email Address | Purpose | Password |
+|--------------|---------|----------|
+| `noreply@finno45.sg-host.com` | Sending emails | [Set strong pwd] |
+| `orders@finno45.sg-host.com` | Receiving orders | [Set strong pwd] |
+
+---
+
+## 2️⃣ UPDATE `.env.local` (On Your Computer)
+
+```env
+VITE_MAIL_SERVICE=siteground
+VITE_MAIL_HOST=c1120075.sgvps.net
+VITE_MAIL_PORT=465
+VITE_MAIL_SECURE=true
+VITE_MAIL_FROM=noreply@yourdomain.com
+MAIL_PASSWORD=[pwd-from-step-1]
+MAIL_TO=orders@yourdomain.com
+NODE_ENV=production
+```
+
+---
+
+## 3️⃣ BUILD & UPLOAD
+
+```bash
+npm run build                    # Create dist/ folder
+```
+
+Upload to SiteGround:
+- `dist/*` → `/public_html/`
+- `server.js` → root
+- `package.json` → root
+
+---
+
+## 4️⃣ SITEGROUND DASHBOARD CONFIG
+
+**Node.js Manager:**
+- Entry Point: `server.js`
+- Root: `/public_html`
+- Mode: Production
+- Version: 18+
+
+**Environment Variables:**
+- Set same variables as `.env.local`
+
+**SSL Manager:**
+- Install Let's Encrypt (free)
+
+---
+
+## 5️⃣ TEST EMAIL
+
+```bash
+curl -X POST https://yourdomain.com/api/send-order-email \
+  -H "Content-Type: application/json" \
+  -d '{"email":"test@test.com","phone":"06...","firstName":"Test","lastName":"User","street":"St","houseNumber":"1","postcode":"1234AB","place":"City","country":"NL","cartItems":[{"productName":"Window","quantity":1}]}'
+```
+
+Expected: `{"success":true,"message":"Email sent successfully"}`
+
+---
+
+## ❌ IF EMAIL DOESN'T WORK
+
+1. **Check credentials** - Verify password in SiteGround
+2. **Check .env** - Make sure all vars are set in dashboard
+3. **Check server** - Is Node.js app running?
+4. **Check logs** - SiteGround Dashboard → Logs → Error Log
+5. **Call SiteGround** - Support line if still stuck
+
+---
+
+## 📁 IMPORTANT FILES
+
+| File | Action |
+|------|--------|
+| `.env.local` | Update with SiteGround credentials |
+| `server.js` | ✅ Already updated |
+| `package.json` | ✅ All dependencies ready |
+
+---
+
+## 📚 DOCUMENTATION
+
+Start with: `README_SITEGROUND.md` (5 min read)
+
+Then follow: `DEPLOYMENT_CHECKLIST.md` (step-by-step)
+
+---
+
+## 🔗 LINKS
+
+- **SiteGround Support:** https://www.siteground.com/support
+- **Node.js Docs:** https://nodejs.org
+
+---
+
+## ✅ COMPLETION CHECKLIST
+
+- [ ] Emails created on SiteGround
+- [ ] `.env.local` updated locally
+- [ ] `npm run build` successful
+- [ ] Files uploaded to SiteGround
+- [ ] Node.js app running
+- [ ] Environment variables set
+- [ ] SSL certificate installed
+- [ ] Test email sent successfully
+- [ ] Live! 🎉
+
+---
+
+**Keep this card handy during deployment!**
