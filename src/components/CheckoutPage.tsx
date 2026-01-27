@@ -316,8 +316,8 @@ export function CheckoutPage() {
             </div>
           ))}
           
-          {/* Debug: Show hidden data (comment out in production) */}
-          <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded text-xs">
+          {/* Debug: Hidden in production */}
+          {/* <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded text-xs">
             <p className="font-bold text-blue-900 mb-2">📋 Gegevens die worden verzonden:</p>
             <pre className="text-blue-800 overflow-auto max-h-40 whitespace-pre-wrap break-words">
 {JSON.stringify(
@@ -342,7 +342,7 @@ export function CheckoutPage() {
   2
 )}
             </pre>
-          </div>
+          </div> */}
 
           {/* Privacy Notice */}
           <div className="pt-4">

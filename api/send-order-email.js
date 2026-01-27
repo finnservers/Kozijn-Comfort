@@ -159,44 +159,24 @@ Datum: ${new Date().toLocaleString('nl-NL')}
   `;
 }
 
-// Admin notification email (detailed order info)
+// Admin notification email
 function formatAdminEmailHTML(data) {
-  let cartSummary = '';
-  
-  if (data.cartItems && data.cartItems.length > 0) {
-    cartSummary = data.cartItems
-      .map((item, index) => {
-        const getColor = (item, field) => {
-          return item[field] || item.colors?.[field] || '';
-        };
-
-        return `
-          <div style="margin-bottom: 20px; padding: 15px; border-left: 4px solid #B59871; background: #f9f9f9; border-radius: 3px;">
-            <strong style="display: block; margin-bottom: 12px; color: #B59871; font-size: 15px;">📦 Product ${index + 1}</strong>
-            
-            <div style="font-size: 13px; line-height: 1.8; color: #333;">
-              ${item.productName ? `<div><strong>Producttype:</strong> ${item.productName}</div>` : ''}
-              ${item.type ? `<div><strong>Type:</strong> ${item.type}</div>` : ''}
-              ${item.configuration ? `<div><strong>Configuratie:</strong> ${item.configuration}</div>` : ''}
-              ${item.panels ? `<div><strong>Panelen:</strong> ${item.panels}</div>` : ''}
-              ${item.width || item.height ? `<div><strong>Afmetingen:</strong> ${item.width || '?'}mm x ${item.height || '?'}mm</div>` : ''}
-              ${getColor(item, 'insideColorName') || getColor(item, 'inside') ? `<div><strong>Kleur binnenkant:</strong> ${getColor(item, 'insideColorName') || getColor(item, 'inside')}</div>` : ''}
-              ${getColor(item, 'outsideFixedColorName') || getColor(item, 'outsideFixed') ? `<div><strong>Kleur buitenkant vast deel:</strong> ${getColor(item, 'outsideFixedColorName') || getColor(item, 'outsideFixed')}</div>` : ''}
-              ${getColor(item, 'outsideMovingColorName') || getColor(item, 'outsideMoving') ? `<div><strong>Kleur buitenkant beweegbare delen:</strong> ${getColor(item, 'outsideMovingColorName') || getColor(item, 'outsideMoving')}</div>` : ''}
-              ${item.glassTypeName ? `<div><strong>Glastype:</strong> ${item.glassTypeName}</div>` : ''}
-              ${item.glassFinishName ? `<div><strong>Glasafwerking:</strong> ${item.glassFinishName}</div>` : ''}
-              ${item.direction ? `<div><strong>Richting:</strong> ${item.direction}</div>` : ''}
-              ${item.screens ? `<div><strong>Schermen:</strong> ${item.screens}</div>` : ''}
-              <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #ddd;">
-                <strong style="color: #B59871;">✓ Aantal: ${item.quantity || 1}</strong>
-              </div>
-            </div>
-          </div>`;
-      })
-      .join('');
-  } else {
-    cartSummary = '<div style="padding: 15px; text-align: center; color: #999;">Geen producten in winkelwagen</div>';
-  }
+  // Build product details from cart items
+  const productDetails = data.cartItems && data.cartItems.length > 0
+    ? data.cartItems.map((item, idx) => `
+        <tr style="border-bottom: 1px solid #eee;">
+          <td style="padding: 10px;"><strong>Product ${idx + 1}</strong></td>
+          <td style="padding: 10px;">
+            <div><strong>Producttype:</strong> ${item.productName || 'N/A'}</div>
+            <div><strong>Materiaal:</strong> ${item.material || item.type || 'N/A'}</div>
+            <div><strong>Afmetingen:</strong> ${item.width || '?'} x ${item.height || '?'} mm</div>
+            <div><strong>Kleur binnenzijde:</strong> ${item.insideColorName || item.inside || 'N/A'}</div>
+            <div><strong>Kleur buitenzijde:</strong> ${item.outsideFixedColorName || item.outsideFixed || 'N/A'}</div>
+            <div><strong>Beglazing:</strong> ${item.glassTypeName || 'N/A'}</div>
+          </td>
+        </tr>
+      `).join('')
+    : '<tr><td colspan="2" style="padding: 10px;">Geen producten geselecteerd</td></tr>';
 
   return `
 <!DOCTYPE html>
@@ -205,44 +185,45 @@ function formatAdminEmailHTML(data) {
     <meta charset="UTF-8">
   </head>
   <body style="font-family: Arial, sans-serif; color: #333; background: #f9f9f9; margin: 0; padding: 20px;">
-    <div style="max-width: 650px; margin: 0 auto; background: white; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-      <div style="background: linear-gradient(135deg, #f5f5f5 0%, #efefef 100%); padding: 30px 20px; text-align: center; border-bottom: 3px solid #B59871;">
-        <h1 style="margin: 0; font-size: 24px; color: #333;">Nieuwe Orderaanvraag</h1>
-        <p style="margin: 8px 0 0 0; font-size: 14px; color: #666;">Kozijnen Configurator</p>
+    <div style="max-width: 750px; margin: 0 auto; background: white; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+      <div style="background: linear-gradient(135deg, #8B7355 0%, #A0826D 100%); padding: 30px 20px; text-align: center; border-bottom: 3px solid #B59871; color: white;">
+        <h1 style="margin: 0; font-size: 24px;">⭐ Nieuwe configurator-aanvraag</h1>
+        <p style="margin: 8px 0 0 0; font-size: 16px;">${data.firstName} ${data.lastName}</p>
       </div>
 
       <div style="padding: 30px 20px;">
-        <div style="margin: 25px 0;">
-          <div style="font-weight: bold; font-size: 16px; margin: 15px 0 12px 0; color: #333; padding-bottom: 8px; border-bottom: 2px solid #B59871;">👤 Contactgegevens</div>
-          <div style="padding: 10px 0; border-bottom: 1px solid #eee;"><strong>Naam:</strong> ${data.firstName} ${data.lastName}</div>
-          <div style="padding: 10px 0; border-bottom: 1px solid #eee;"><strong>E-mail:</strong> <a href="mailto:${data.email}" style="color: #B59871; text-decoration: none;">${data.email}</a></div>
-          <div style="padding: 10px 0; border-bottom: 1px solid #eee;"><strong>Telefoon:</strong> +31 ${data.phone}</div>
+        <div style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 15px 0; border-radius: 3px;">
+          <strong>👉 Actie:</strong> Neem binnen 24-48 uur contact op met de klant voor verdere afstemming en het opstellen van een passende offerte.
         </div>
 
         <div style="margin: 25px 0;">
-          <div style="font-weight: bold; font-size: 16px; margin: 15px 0 12px 0; color: #333; padding-bottom: 8px; border-bottom: 2px solid #B59871;">📍 Adresgegevens</div>
-          <div style="padding: 10px 0; border-bottom: 1px solid #eee;"><strong>Straat:</strong> ${data.street} ${data.houseNumber}</div>
-          <div style="padding: 10px 0; border-bottom: 1px solid #eee;"><strong>Postcode:</strong> ${data.postcode}</div>
-          <div style="padding: 10px 0; border-bottom: 1px solid #eee;"><strong>Plaats:</strong> ${data.place}</div>
-          <div style="padding: 10px 0; border-bottom: 1px solid #eee;"><strong>Land:</strong> ${data.country}</div>
+          <div style="font-weight: bold; font-size: 16px; margin: 15px 0 12px 0; color: #333; padding: 10px; background: #f5f5f5; border-bottom: 2px solid #B59871;">👤 Klantgegevens</div>
+          <table style="width: 100%; border-collapse: collapse;">
+            <tr style="border-bottom: 1px solid #eee;"><td style="padding: 12px; border: 1px solid #eee;"><strong>Naam:</strong></td><td style="padding: 12px; border: 1px solid #eee;">${data.firstName} ${data.lastName}</td></tr>
+            <tr style="border-bottom: 1px solid #eee;"><td style="padding: 12px; border: 1px solid #eee;"><strong>E-mailadres:</strong></td><td style="padding: 12px; border: 1px solid #eee;"><a href="mailto:${data.email}">${data.email}</a></td></tr>
+            <tr style="border-bottom: 1px solid #eee;"><td style="padding: 12px; border: 1px solid #eee;"><strong>Telefoonnummer:</strong></td><td style="padding: 12px; border: 1px solid #eee;">${data.phone}</td></tr>
+            <tr style="border-bottom: 1px solid #eee;"><td style="padding: 12px; border: 1px solid #eee;"><strong>Adres:</strong></td><td style="padding: 12px; border: 1px solid #eee;">${data.street} ${data.houseNumber}, ${data.postcode} ${data.place}</td></tr>
+          </table>
         </div>
 
         <div style="margin: 25px 0;">
-          <div style="font-weight: bold; font-size: 16px; margin: 15px 0 12px 0; color: #333; padding-bottom: 8px; border-bottom: 2px solid #B59871;">🪟 Geselecteerde Producten</div>
-          ${cartSummary}
+          <div style="font-weight: bold; font-size: 16px; margin: 15px 0 12px 0; color: #333; padding: 10px; background: #f5f5f5; border-bottom: 2px solid #B59871;">🔧 Samengestelde Configuratie</div>
+          <table style="width: 100%; border-collapse: collapse;">
+            ${productDetails}
+          </table>
         </div>
 
-        ${data.remarks ? `
         <div style="margin: 25px 0;">
-          <div style="font-weight: bold; font-size: 16px; margin: 15px 0 12px 0; color: #333; padding-bottom: 8px; border-bottom: 2px solid #B59871;">📝 Opmerkingen</div>
-          <div style="background: #f9f9f9; padding: 12px; border-left: 4px solid #B59871; border-radius: 3px;">${data.remarks.replace(/\n/g, '<br>')}</div>
-        </div>` : ''}
+          <div style="font-weight: bold; font-size: 16px; margin: 15px 0 12px 0; color: #333; padding: 10px; background: #f5f5f5; border-bottom: 2px solid #B59871;">📝 Opmerking van Klant</div>
+          <div style="background: #f9f9f9; padding: 15px; border-radius: 3px;">
+            ${data.remarks || '<em>Geen opmerkingen</em>'}
+          </div>
+        </div>
       </div>
 
       <div style="background: #f5f5f5; padding: 20px; text-align: center; font-size: 12px; color: #666; border-top: 1px solid #eee;">
-        <p style="margin: 5px 0;"><strong>Dit bericht is automatisch gegenereerd door de Kozijnen Configurator</strong></p>
-        <p style="margin: 5px 0;">Datum en tijd: ${new Date().toLocaleString('nl-NL')}</p>
-        <p style="margin-top: 15px; color: #999;">Wij behandelen uw aanvraag zo spoedig mogelijk.</p>
+        <p style="margin: 5px 0;">Dit bericht is automatisch gegenereerd door de Kozijnen Configurator.</p>
+        <p style="margin: 5px 0;">Neem contact op met de klant op het bovenstaande e-mailadres of telefoonnummer.</p>
       </div>
     </div>
   </body>
@@ -250,8 +231,38 @@ function formatAdminEmailHTML(data) {
   `;
 }
 
-// Customer confirmation email (simple, friendly confirmation)
+// Customer confirmation email
 function formatCustomerEmailHTML(data) {
+  // Build product overview from cart items
+  const productRows = data.cartItems && data.cartItems.length > 0
+    ? data.cartItems.map((item, idx) => `
+        <tr style="border-bottom: 1px solid #eee;">
+          <td style="padding: 12px;">Producttype</td>
+          <td style="padding: 12px;">${item.productName || 'N/A'}</td>
+        </tr>
+        <tr style="border-bottom: 1px solid #eee;">
+          <td style="padding: 12px;">Materiaal</td>
+          <td style="padding: 12px;">${item.material || item.type || 'N/A'}</td>
+        </tr>
+        <tr style="border-bottom: 1px solid #eee;">
+          <td style="padding: 12px;">Afmetingen</td>
+          <td style="padding: 12px;">${item.width || '?'} x ${item.height || '?'} mm</td>
+        </tr>
+        <tr style="border-bottom: 1px solid #eee;">
+          <td style="padding: 12px;">Kleur binnenzijde</td>
+          <td style="padding: 12px;">${item.insideColorName || item.inside || 'N/A'}</td>
+        </tr>
+        <tr style="border-bottom: 1px solid #eee;">
+          <td style="padding: 12px;">Kleur buitenzijde</td>
+          <td style="padding: 12px;">${item.outsideFixedColorName || item.outsideFixed || 'N/A'}</td>
+        </tr>
+        <tr style="border-bottom: 1px solid #eee;">
+          <td style="padding: 12px;">Beglazing</td>
+          <td style="padding: 12px;">${item.glassTypeName || 'N/A'}</td>
+        </tr>
+      `).join('')
+    : '<tr><td colspan="2" style="padding: 12px;">Geen producten geselecteerd</td></tr>';
+
   return `
 <!DOCTYPE html>
 <html>
@@ -261,60 +272,49 @@ function formatCustomerEmailHTML(data) {
   <body style="font-family: Arial, sans-serif; color: #333; background: #f9f9f9; margin: 0; padding: 20px;">
     <div style="max-width: 650px; margin: 0 auto; background: white; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
       <div style="background: linear-gradient(135deg, #8B7355 0%, #A0826D 100%); padding: 30px 20px; text-align: center; border-bottom: 3px solid #B59871;">
-        <h1 style="margin: 0; font-size: 24px; color: white;">Bedankt voor uw aanvraag!</h1>
-        <p style="margin: 8px 0 0 0; font-size: 14px; color: #f5f5f5;">Kozijnen Comfort</p>
+        <h1 style="margin: 0; font-size: 24px; color: white;">Bevestiging van uw kozijnen-aanvraag</h1>
+        <p style="margin: 8px 0 0 0; font-size: 14px; color: #f5f5f5;">Kozijn Comfort</p>
       </div>
 
       <div style="padding: 30px 20px;">
         <p style="font-size: 16px; line-height: 1.6; color: #333;">Beste ${data.firstName},</p>
 
         <p style="font-size: 15px; line-height: 1.8; color: #555;">
-          Hartelijk dank voor uw aanvraag via onze kozijnen configurator.
-          Wij hebben uw gegevens goed ontvangen en zullen deze zo spoedig mogelijk in behandeling nemen.
+          Hartelijk dank voor het samenstellen van uw kozijnen via de configurator van Kozijn Comfort.<br>
+          <strong>Wij hebben uw aanvraag succesvol ontvangen.</strong>
         </p>
 
-        <div style="background: #f5f5f5; padding: 20px; border-left: 4px solid #B59871; margin: 25px 0; border-radius: 3px;">
-          <p style="margin: 0 0 15px 0; font-size: 15px; color: #333;"><strong>📋 Uw gegevens:</strong></p>
-          <p style="margin: 8px 0; font-size: 14px; color: #555;"><strong>Naam:</strong> ${data.firstName} ${data.lastName}</p>
-          <p style="margin: 8px 0; font-size: 14px; color: #555;"><strong>E-mail:</strong> ${data.email}</p>
-          <p style="margin: 8px 0; font-size: 14px; color: #555;"><strong>Telefoon:</strong> +31 ${data.phone}</p>
-          <p style="margin: 8px 0; font-size: 14px; color: #555;"><strong>Adres:</strong> ${data.street} ${data.houseNumber}, ${data.postcode} ${data.place}</p>
-        </div>
+        <p style="font-size: 15px; line-height: 1.8; color: #555;">
+          Hieronder vindt u een overzicht van de door u samengestelde keuzes:
+        </p>
 
-        <div style="background: #fff9f0; padding: 20px; border-radius: 3px; margin: 25px 0;">
-          <p style="margin: 0 0 10px 0; font-size: 15px; color: #333;"><strong>⏱️ Wat gebeurt er nu?</strong></p>
-          <p style="margin: 8px 0; font-size: 14px; color: #555; line-height: 1.6;">
-            Een van onze adviseurs zal binnen 1-2 werkdagen contact met u opnemen om uw wensen te bespreken
-            en een vrijblijvende offerte op te stellen.
-          </p>
-        </div>
-
-        ${data.remarks ? `
         <div style="margin: 25px 0;">
-          <p style="font-size: 14px; color: #666;"><strong>Uw opmerking:</strong></p>
-          <p style="background: #f9f9f9; padding: 12px; border-left: 4px solid #B59871; font-size: 14px; color: #555; font-style: italic;">
-            "${data.remarks}"
-          </p>
-        </div>` : ''}
-
-        <p style="font-size: 14px; line-height: 1.8; color: #555; margin-top: 30px;">
-          Heeft u vragen of wilt u wijzigingen doorgeven? Neem gerust contact met ons op!
-        </p>
-
-        <div style="margin: 30px 0; padding: 20px; background: #f5f5f5; border-radius: 3px; text-align: center;">
-          <p style="margin: 0 0 10px 0; font-size: 14px; color: #666;">Contact opnemen?</p>
-          <p style="margin: 5px 0;"><a href="mailto:info@kozijncomfort.nl" style="color: #B59871; text-decoration: none; font-weight: bold;">info@kozijncomfort.nl</a></p>
+          <p style="font-weight: bold; font-size: 16px; margin: 15px 0 12px 0; color: #333; padding-bottom: 8px; border-bottom: 2px solid #B59871;">📋 Overzicht van uw configuratie</p>
+          <table style="width: 100%; border-collapse: collapse; margin-top: 10px; background: #f9f9f9;">
+            ${productRows}
+          </table>
         </div>
 
-        <p style="font-size: 14px; color: #666; margin-top: 30px;">
-          Met vriendelijke groet,<br>
-          <strong style="color: #333;">Het team van Kozijnen Comfort</strong>
+        <p style="font-size: 15px; line-height: 1.8; color: #555;">
+          Wij nemen binnen 24 tot 48 uur persoonlijk contact met u op om uw aanvraag te bespreken, eventuele vragen te beantwoorden en de vervolgstappen toe te lichten.
         </p>
+
+        <p style="font-size: 15px; line-height: 1.8; color: #555;">
+          Heeft u in de tussentijd aanvullende informatie of wensen? Dan kunt u altijd reageren op deze e-mail.
+        </p>
+
+        <div style="background: #f5f5f5; padding: 20px; border-radius: 5px; margin-top: 25px;">
+          <p style="margin: 5px 0; font-weight: bold;">Met vriendelijke groet,</p>
+          <p style="margin: 8px 0;">Kozijn Comfort</p>
+          <p style="margin: 3px 0;">📧 info@kozijncomfort.nl</p>
+          <p style="margin: 3px 0;">📞 +31 623432448</p>
+          <p style="margin: 3px 0;">🌐 www.kozijncomfort.nl</p>
+        </div>
       </div>
 
       <div style="background: #f5f5f5; padding: 20px; text-align: center; font-size: 12px; color: #999; border-top: 1px solid #eee;">
-        <p style="margin: 5px 0;">© ${new Date().getFullYear()} Kozijnen Comfort</p>
-        <p style="margin: 5px 0;">Dit is een geautomatiseerd bericht. Antwoorden op deze e-mail worden binnen 1 werkdag behandeld.</p>
+        <p style="margin: 5px 0;">Dit is een automatisch gegenereerde bevestigingsmail.</p>
+        <p style="margin: 5px 0;">Antwoord op deze mail of neem contact op voor vragen.</p>
       </div>
     </div>
   </body>
