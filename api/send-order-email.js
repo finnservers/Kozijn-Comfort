@@ -87,37 +87,55 @@ export default async function handler(req, res) {
 
     // Skip verification and try to send directly
     // Verification often fails on serverless but sending works
-    console.log('Skipping SMTP verification, attempting to send email directly...');
+    console.log('Skipping SMTP verification, attempting to send emails directly...');
 
-    // Format email HTML
-    const emailHTML = formatEmailHTML(orderData);
-    const emailText = formatEmailText(orderData);
-
-    // Send email
-    const mailOptions = {
-      from: `"Kozijnen Configurator" <${emailFrom}>`,
-      to: emailTo,
-      subject: `Nieuwe Orderaanvraag - ${orderData.firstName} ${orderData.lastName}`,
-      text: emailText,
-      html: emailHTML,
-    };
+    // Prepare email content
+    const adminEmailHTML = formatAdminEmailHTML(orderData);
+    const adminEmailText = formatEmailText(orderData);
+    const customerEmailHTML = formatCustomerEmailHTML(orderData);
+    const customerEmailText = formatCustomerEmailText(orderData);
 
     try {
-      const info = await transporter.sendMail(mailOptions);
-      
-      console.log('Email sent successfully:', {
-        messageId: info.messageId,
+      // Send email to admin (business owner)
+      console.log('📧 Sending admin notification email...');
+      const adminMailOptions = {
+        from: `"Kozijnen Configurator" <${emailFrom}>`,
         to: emailTo,
-        from: emailFrom
+        subject: `Nieuwe Orderaanvraag - ${orderData.firstName} ${orderData.lastName}`,
+        text: adminEmailText,
+        html: adminEmailHTML,
+      };
+
+      const adminInfo = await transporter.sendMail(adminMailOptions);
+      console.log('✅ Admin email sent successfully:', {
+        messageId: adminInfo.messageId,
+        to: emailTo
+      });
+
+      // Send confirmation email to customer
+      console.log('📧 Sending customer confirmation email...');
+      const customerMailOptions = {
+        from: `"Kozijnen Comfort" <${emailFrom}>`,
+        to: orderData.email,
+        subject: 'Bevestiging van uw aanvraag - Kozijnen Comfort',
+        text: customerEmailText,
+        html: customerEmailHTML,
+      };
+
+      const customerInfo = await transporter.sendMail(customerMailOptions);
+      console.log('✅ Customer confirmation email sent successfully:', {
+        messageId: customerInfo.messageId,
+        to: orderData.email
       });
 
       return res.status(200).json({
         success: true,
-        message: 'Order received and email sent successfully',
+        message: 'Order received and emails sent successfully',
         data: {
           email: orderData.email,
           timestamp: new Date().toISOString(),
-          messageId: info.messageId
+          adminMessageId: adminInfo.messageId,
+          customerMessageId: customerInfo.messageId
         }
       });
     } catch (emailError) {
@@ -128,7 +146,7 @@ export default async function handler(req, res) {
         response: emailError.response,
         responseCode: emailError.responseCode
       });
-      
+
       // Return success anyway - order is logged even if email fails
       return res.status(200).json({
         success: true,
@@ -188,7 +206,8 @@ Datum: ${new Date().toLocaleString('nl-NL')}
   `;
 }
 
-function formatEmailHTML(data) {
+// Admin notification email (detailed order info)
+function formatAdminEmailHTML(data) {
   let cartSummary = '';
   
   if (data.cartItems && data.cartItems.length > 0) {
@@ -275,5 +294,113 @@ function formatEmailHTML(data) {
     </div>
   </body>
 </html>
+  `;
+}
+
+// Customer confirmation email (simple, friendly confirmation)
+function formatCustomerEmailHTML(data) {
+  return `
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+  </head>
+  <body style="font-family: Arial, sans-serif; color: #333; background: #f9f9f9; margin: 0; padding: 20px;">
+    <div style="max-width: 650px; margin: 0 auto; background: white; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+      <div style="background: linear-gradient(135deg, #8B7355 0%, #A0826D 100%); padding: 30px 20px; text-align: center; border-bottom: 3px solid #B59871;">
+        <h1 style="margin: 0; font-size: 24px; color: white;">Bedankt voor uw aanvraag!</h1>
+        <p style="margin: 8px 0 0 0; font-size: 14px; color: #f5f5f5;">Kozijnen Comfort</p>
+      </div>
+
+      <div style="padding: 30px 20px;">
+        <p style="font-size: 16px; line-height: 1.6; color: #333;">Beste ${data.firstName},</p>
+
+        <p style="font-size: 15px; line-height: 1.8; color: #555;">
+          Hartelijk dank voor uw aanvraag via onze kozijnen configurator.
+          Wij hebben uw gegevens goed ontvangen en zullen deze zo spoedig mogelijk in behandeling nemen.
+        </p>
+
+        <div style="background: #f5f5f5; padding: 20px; border-left: 4px solid #B59871; margin: 25px 0; border-radius: 3px;">
+          <p style="margin: 0 0 15px 0; font-size: 15px; color: #333;"><strong>📋 Uw gegevens:</strong></p>
+          <p style="margin: 8px 0; font-size: 14px; color: #555;"><strong>Naam:</strong> ${data.firstName} ${data.lastName}</p>
+          <p style="margin: 8px 0; font-size: 14px; color: #555;"><strong>E-mail:</strong> ${data.email}</p>
+          <p style="margin: 8px 0; font-size: 14px; color: #555;"><strong>Telefoon:</strong> +31 ${data.phone}</p>
+          <p style="margin: 8px 0; font-size: 14px; color: #555;"><strong>Adres:</strong> ${data.street} ${data.houseNumber}, ${data.postcode} ${data.place}</p>
+        </div>
+
+        <div style="background: #fff9f0; padding: 20px; border-radius: 3px; margin: 25px 0;">
+          <p style="margin: 0 0 10px 0; font-size: 15px; color: #333;"><strong>⏱️ Wat gebeurt er nu?</strong></p>
+          <p style="margin: 8px 0; font-size: 14px; color: #555; line-height: 1.6;">
+            Een van onze adviseurs zal binnen 1-2 werkdagen contact met u opnemen om uw wensen te bespreken
+            en een vrijblijvende offerte op te stellen.
+          </p>
+        </div>
+
+        ${data.remarks ? `
+        <div style="margin: 25px 0;">
+          <p style="font-size: 14px; color: #666;"><strong>Uw opmerking:</strong></p>
+          <p style="background: #f9f9f9; padding: 12px; border-left: 4px solid #B59871; font-size: 14px; color: #555; font-style: italic;">
+            "${data.remarks}"
+          </p>
+        </div>` : ''}
+
+        <p style="font-size: 14px; line-height: 1.8; color: #555; margin-top: 30px;">
+          Heeft u vragen of wilt u wijzigingen doorgeven? Neem gerust contact met ons op!
+        </p>
+
+        <div style="margin: 30px 0; padding: 20px; background: #f5f5f5; border-radius: 3px; text-align: center;">
+          <p style="margin: 0 0 10px 0; font-size: 14px; color: #666;">Contact opnemen?</p>
+          <p style="margin: 5px 0;"><a href="mailto:info@kozijncomfort.nl" style="color: #B59871; text-decoration: none; font-weight: bold;">info@kozijncomfort.nl</a></p>
+        </div>
+
+        <p style="font-size: 14px; color: #666; margin-top: 30px;">
+          Met vriendelijke groet,<br>
+          <strong style="color: #333;">Het team van Kozijnen Comfort</strong>
+        </p>
+      </div>
+
+      <div style="background: #f5f5f5; padding: 20px; text-align: center; font-size: 12px; color: #999; border-top: 1px solid #eee;">
+        <p style="margin: 5px 0;">© ${new Date().getFullYear()} Kozijnen Comfort</p>
+        <p style="margin: 5px 0;">Dit is een geautomatiseerd bericht. Antwoorden op deze e-mail worden binnen 1 werkdag behandeld.</p>
+      </div>
+    </div>
+  </body>
+</html>
+  `;
+}
+
+// Customer confirmation email (plain text version)
+function formatCustomerEmailText(data) {
+  return `
+BEDANKT VOOR UW AANVRAAG
+========================
+
+Beste ${data.firstName},
+
+Hartelijk dank voor uw aanvraag via onze kozijnen configurator.
+Wij hebben uw gegevens goed ontvangen en zullen deze zo spoedig mogelijk in behandeling nemen.
+
+UW GEGEVENS:
+============
+Naam: ${data.firstName} ${data.lastName}
+E-mail: ${data.email}
+Telefoon: +31 ${data.phone}
+Adres: ${data.street} ${data.houseNumber}, ${data.postcode} ${data.place}
+
+${data.remarks ? `UW OPMERKING:\n============\n${data.remarks}\n\n` : ''}
+
+WAT GEBEURT ER NU?
+==================
+Een van onze adviseurs zal binnen 1-2 werkdagen contact met u opnemen om uw wensen te bespreken en een vrijblijvende offerte op te stellen.
+
+Heeft u vragen of wilt u wijzigingen doorgeven? Neem gerust contact met ons op via info@kozijncomfort.nl
+
+Met vriendelijke groet,
+Het team van Kozijnen Comfort
+
+============================================
+© ${new Date().getFullYear()} Kozijnen Comfort
+Dit is een geautomatiseerd bericht.
+Datum: ${new Date().toLocaleString('nl-NL')}
   `;
 }

@@ -8,41 +8,59 @@ Your application will NOT work on Vercel until you set up these environment vari
 
 Go to your Vercel project dashboard → Settings → Environment Variables and add:
 
-### Option A: SiteGround SMTP (Try Port 587 First)
+### ✅ Recommended: Gmail SMTP with Custom "From" Address
+
+**This configuration works reliably with Vercel and sends emails appearing as "From: info@kozijncomfort.nl"**
 
 | Variable Name | Value | Example |
 |--------------|-------|---------|
-| `VITE_MAIL_FROM` | Your sender email address | `info@kozijncomfort.nl` |
-| `MAIL_PASSWORD` | Your email account password | `tec#4+211&k6` |
+| `VITE_MAIL_FROM` | Your business email address | `info@kozijncomfort.nl` |
+| `MAIL_PASSWORD` | Gmail App Password | [16-char app password] |
 | `MAIL_TO` | Recipient email for orders | `finnservers@gmail.com` |
-| `VITE_MAIL_HOST` | SMTP host server | `c1120075.sgvps.net` |
-| `VITE_MAIL_PORT` | SMTP port | `587` |
-| `VITE_MAIL_SECURE` | Use secure connection | `false` |
+| `VITE_MAIL_HOST` | Gmail SMTP server | `smtp.gmail.com` |
+| `VITE_MAIL_PORT` | Gmail SMTP port | `465` |
+| `VITE_MAIL_SECURE` | Use secure connection | `true` |
 | `NODE_ENV` | Environment type | `production` |
 
-**If port 587 doesn't work, try port 465:**
-- Change `VITE_MAIL_PORT` to `465`
-- Change `VITE_MAIL_SECURE` to `true`
+### 📋 Gmail Setup Steps (Required):
 
-### Option B: Gmail SMTP (More Reliable with Vercel)
+#### Step 1: Add Business Email to Gmail
+1. Log into **finnservers@gmail.com**
+2. Go to Settings → Accounts and Import
+3. Find "Send mail as:" section → Click "Add another email address"
+4. Enter: `info@kozijncomfort.nl`
+5. Configure SMTP using SiteGround credentials:
+   - SMTP Server: `c1120075.sgvps.net`
+   - Port: `587`
+   - Username: `info@kozijncomfort.nl`
+   - Password: `tec#4+211&k6`
+6. Verify the email (Gmail will send a code to info@kozijncomfort.nl)
 
-If SiteGround SMTP continues to fail (error 535), use Gmail instead:
+#### Step 2: Get Gmail App Password
+1. Go to https://myaccount.google.com/apppasswords
+2. Sign in to **finnservers@gmail.com**
+3. Enable 2-Step Verification if not already enabled
+4. Create app password for "Mail"
+5. Copy the 16-character password
+6. Use this as `MAIL_PASSWORD` in Vercel
+
+### ⚠️ SiteGround SMTP (Not Recommended for Vercel)
+
+SiteGround SMTP does not work with Vercel due to authentication issues (Error 535). Use Gmail SMTP instead.
+
+<details>
+<summary>Click to see SiteGround SMTP config (for reference only)</summary>
 
 | Variable Name | Value |
 |--------------|-------|
-| `VITE_MAIL_FROM` | `finnservers@gmail.com` |
-| `MAIL_PASSWORD` | Your Gmail App Password (see below) |
-| `MAIL_TO` | `finnservers@gmail.com` |
-| `VITE_MAIL_HOST` | `smtp.gmail.com` |
-| `VITE_MAIL_PORT` | `465` |
-| `VITE_MAIL_SECURE` | `true` |
+| `VITE_MAIL_FROM` | `info@kozijncomfort.nl` |
+| `MAIL_PASSWORD` | `tec#4+211&k6` |
+| `VITE_MAIL_HOST` | `c1120075.sgvps.net` |
+| `VITE_MAIL_PORT` | `587` or `465` |
+| `VITE_MAIL_SECURE` | `false` or `true` |
 
-**How to get Gmail App Password:**
-1. Go to https://myaccount.google.com/apppasswords
-2. Sign in to finnservers@gmail.com
-3. Create an app password for "Mail"
-4. Copy the 16-character password
-5. Use this as `MAIL_PASSWORD` in Vercel
+**Note:** This configuration will fail with Error 535 on Vercel.
+</details>
 
 ### How to Add Environment Variables in Vercel
 
@@ -83,6 +101,22 @@ After setting up environment variables:
    git push
    ```
 3. Vercel will automatically redeploy
+
+## 📧 Email Features
+
+The application now sends **TWO emails** for each order:
+
+1. **Customer Confirmation Email:**
+   - Sent to: Customer's email address
+   - Subject: "Bevestiging van uw aanvraag - Kozijnen Comfort"
+   - Content: Friendly confirmation with order summary, what happens next, and contact info
+   - Appears from: info@kozijncomfort.nl
+
+2. **Admin Notification Email:**
+   - Sent to: finnservers@gmail.com (configured in `MAIL_TO`)
+   - Subject: "Nieuwe Orderaanvraag - [Customer Name]"
+   - Content: Detailed order information with all product specs and customer details
+   - Appears from: info@kozijncomfort.nl
 
 ## Verify Email Functionality
 
