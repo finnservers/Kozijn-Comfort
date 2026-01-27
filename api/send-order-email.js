@@ -23,26 +23,26 @@ export default async function handler(req, res) {
     console.log('=== EMAIL API CALLED ===');
     console.log('Timestamp:', new Date().toISOString());
     console.log('Environment check:', {
-      hasMailFrom: !!process.env.VITE_MAIL_FROM,
+      hasMailFrom: !!process.env.MAIL_FROM,
       hasMailPassword: !!process.env.MAIL_PASSWORD,
       hasMailTo: !!process.env.MAIL_TO,
-      hasMailHost: !!process.env.VITE_MAIL_HOST,
-      hasMailPort: !!process.env.VITE_MAIL_PORT,
+      hasMailHost: !!process.env.MAIL_HOST,
+      hasMailPort: !!process.env.MAIL_PORT,
     });
 
-    // Get environment variables
-    const emailFrom = process.env.VITE_MAIL_FROM;
+    // Get environment variables (without VITE_ prefix - VITE_ doesn't work in serverless functions!)
+    const emailFrom = process.env.MAIL_FROM;
     const emailPassword = process.env.MAIL_PASSWORD;
     const emailTo = process.env.MAIL_TO || 'finnservers@gmail.com';
-    const smtpHost = process.env.VITE_MAIL_HOST || 'c1120075.sgvps.net';
-    const smtpPort = parseInt(process.env.VITE_MAIL_PORT || '465');
+    const smtpHost = process.env.MAIL_HOST || 'mail.kozijncomfort.nl';
+    const smtpPort = parseInt(process.env.MAIL_PORT || '587');
 
     if (!emailFrom || !emailPassword) {
       console.error('❌ Missing email configuration');
       console.error('Available env vars:', Object.keys(process.env).filter(k => k.includes('MAIL')));
       return res.status(500).json({
         success: false,
-        error: 'Email configuration missing. Please add VITE_MAIL_FROM and MAIL_PASSWORD in Vercel environment variables.'
+        error: 'Email configuration missing. Please add MAIL_FROM and MAIL_PASSWORD in Vercel environment variables.'
       });
     }
 
