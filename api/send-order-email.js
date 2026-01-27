@@ -1,5 +1,5 @@
-// Vercel Serverless Function for sending order emails via SMTP
-import nodemailer from 'nodemailer';
+// Vercel Serverless Function for sending order emails via Resend
+import { Resend } from 'resend';
 
 export default async function handler(req, res) {
   // Enable CORS
@@ -23,71 +23,28 @@ export default async function handler(req, res) {
     console.log('=== EMAIL API CALLED ===');
     console.log('Timestamp:', new Date().toISOString());
     console.log('Environment check:', {
+      hasResendApiKey: !!process.env.RESEND_API_KEY,
       hasMailFrom: !!process.env.MAIL_FROM,
-      hasMailPassword: !!process.env.MAIL_PASSWORD,
       hasMailTo: !!process.env.MAIL_TO,
-      hasMailHost: !!process.env.MAIL_HOST,
-      hasMailPort: !!process.env.MAIL_PORT,
     });
 
-    // Get environment variables (without VITE_ prefix - VITE_ doesn't work in serverless functions!)
-    const emailFrom = process.env.MAIL_FROM;
-    const emailPassword = process.env.MAIL_PASSWORD;
+    // Get environment variables
+    const resendApiKey = process.env.RESEND_API_KEY;
+    const emailFrom = process.env.MAIL_FROM || 'info@kozijncomfort.nl';
     const emailTo = process.env.MAIL_TO || 'finnservers@gmail.com';
-    const smtpHost = process.env.MAIL_HOST || 'mail.kozijncomfort.nl';
-    const smtpPort = parseInt(process.env.MAIL_PORT || '587');
 
-    if (!emailFrom || !emailPassword) {
-      console.error('❌ Missing email configuration');
-      console.error('Available env vars:', Object.keys(process.env).filter(k => k.includes('MAIL')));
+    if (!resendApiKey) {
+      console.error('❌ Missing Resend API key');
       return res.status(500).json({
         success: false,
-        error: 'Email configuration missing. Please add MAIL_FROM and MAIL_PASSWORD in Vercel environment variables.'
+        error: 'Resend API key missing. Please add RESEND_API_KEY in Vercel environment variables.'
       });
     }
 
-    console.log('✅ Email configuration validated');
+    console.log('✅ Resend configuration validated');
 
-    // Create nodemailer transporter with multiple fallback options
-    const transporterOptions = {
-      host: smtpHost,
-      port: smtpPort,
-      secure: smtpPort === 465, // true for 465, false for other ports
-      auth: {
-        user: emailFrom,
-        pass: emailPassword,
-      },
-      tls: {
-        rejectUnauthorized: false, // Accept self-signed certificates
-        minVersion: 'TLSv1.2' // Use modern TLS instead of deprecated SSLv3
-      },
-      // Try multiple auth methods
-      authMethod: 'PLAIN',
-      connectionTimeout: 15000, // 15 seconds
-      greetingTimeout: 15000,
-      socketTimeout: 15000,
-      debug: true, // Enable debug logs
-      logger: true
-    };
-
-    console.log('SMTP Authentication attempt with:', {
-      user: emailFrom,
-      passwordLength: emailPassword?.length,
-      passwordStart: emailPassword?.substring(0, 3) + '***'
-    });
-
-    console.log('Creating SMTP transporter with config:', {
-      host: smtpHost,
-      port: smtpPort,
-      user: emailFrom,
-      secure: smtpPort === 465
-    });
-
-    const transporter = nodemailer.createTransport(transporterOptions);
-
-    // Skip verification and try to send directly
-    // Verification often fails on serverless but sending works
-    console.log('Skipping SMTP verification, attempting to send emails directly...');
+    // Initialize Resend
+    const resend = new Resend(resendApiKey);
 
     // Prepare email content
     const adminEmailHTML = formatAdminEmailHTML(orderData);
@@ -97,34 +54,32 @@ export default async function handler(req, res) {
 
     try {
       // Send email to admin (business owner)
-      console.log('📧 Sending admin notification email...');
-      const adminMailOptions = {
-        from: `"Kozijnen Configurator" <${emailFrom}>`,
+      console.log('📧 Sending admin notification email via Resend...');
+      const adminResult = await resend.emails.send({
+        from: `Kozijnen Configurator <${emailFrom}>`,
         to: emailTo,
         subject: `Nieuwe Orderaanvraag - ${orderData.firstName} ${orderData.lastName}`,
-        text: adminEmailText,
         html: adminEmailHTML,
-      };
+        text: adminEmailText,
+      });
 
-      const adminInfo = await transporter.sendMail(adminMailOptions);
       console.log('✅ Admin email sent successfully:', {
-        messageId: adminInfo.messageId,
+        id: adminResult.data?.id,
         to: emailTo
       });
 
       // Send confirmation email to customer
-      console.log('📧 Sending customer confirmation email...');
-      const customerMailOptions = {
-        from: `"Kozijnen Comfort" <${emailFrom}>`,
+      console.log('📧 Sending customer confirmation email via Resend...');
+      const customerResult = await resend.emails.send({
+        from: `Kozijnen Comfort <${emailFrom}>`,
         to: orderData.email,
         subject: 'Bevestiging van uw aanvraag - Kozijnen Comfort',
-        text: customerEmailText,
         html: customerEmailHTML,
-      };
+        text: customerEmailText,
+      });
 
-      const customerInfo = await transporter.sendMail(customerMailOptions);
       console.log('✅ Customer confirmation email sent successfully:', {
-        messageId: customerInfo.messageId,
+        id: customerResult.data?.id,
         to: orderData.email
       });
 
@@ -134,17 +89,15 @@ export default async function handler(req, res) {
         data: {
           email: orderData.email,
           timestamp: new Date().toISOString(),
-          adminMessageId: adminInfo.messageId,
-          customerMessageId: customerInfo.messageId
+          adminEmailId: adminResult.data?.id,
+          customerEmailId: customerResult.data?.id
         }
       });
     } catch (emailError) {
       console.error('Failed to send email:', emailError);
       console.error('Email error details:', {
-        code: emailError.code,
-        command: emailError.command,
-        response: emailError.response,
-        responseCode: emailError.responseCode
+        message: emailError.message,
+        name: emailError.name
       });
 
       // Return success anyway - order is logged even if email fails
