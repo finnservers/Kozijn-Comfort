@@ -8,15 +8,41 @@ Your application will NOT work on Vercel until you set up these environment vari
 
 Go to your Vercel project dashboard → Settings → Environment Variables and add:
 
+### Option A: SiteGround SMTP (Try Port 587 First)
+
 | Variable Name | Value | Example |
 |--------------|-------|---------|
 | `VITE_MAIL_FROM` | Your sender email address | `info@kozijncomfort.nl` |
 | `MAIL_PASSWORD` | Your email account password | `tec#4+211&k6` |
 | `MAIL_TO` | Recipient email for orders | `finnservers@gmail.com` |
 | `VITE_MAIL_HOST` | SMTP host server | `c1120075.sgvps.net` |
-| `VITE_MAIL_PORT` | SMTP port (usually 465) | `465` |
-| `VITE_MAIL_SECURE` | Use secure connection | `true` |
+| `VITE_MAIL_PORT` | SMTP port | `587` |
+| `VITE_MAIL_SECURE` | Use secure connection | `false` |
 | `NODE_ENV` | Environment type | `production` |
+
+**If port 587 doesn't work, try port 465:**
+- Change `VITE_MAIL_PORT` to `465`
+- Change `VITE_MAIL_SECURE` to `true`
+
+### Option B: Gmail SMTP (More Reliable with Vercel)
+
+If SiteGround SMTP continues to fail (error 535), use Gmail instead:
+
+| Variable Name | Value |
+|--------------|-------|
+| `VITE_MAIL_FROM` | `finnservers@gmail.com` |
+| `MAIL_PASSWORD` | Your Gmail App Password (see below) |
+| `MAIL_TO` | `finnservers@gmail.com` |
+| `VITE_MAIL_HOST` | `smtp.gmail.com` |
+| `VITE_MAIL_PORT` | `465` |
+| `VITE_MAIL_SECURE` | `true` |
+
+**How to get Gmail App Password:**
+1. Go to https://myaccount.google.com/apppasswords
+2. Sign in to finnservers@gmail.com
+3. Create an app password for "Mail"
+4. Copy the 16-character password
+5. Use this as `MAIL_PASSWORD` in Vercel
 
 ### How to Add Environment Variables in Vercel
 

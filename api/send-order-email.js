@@ -61,12 +61,20 @@ export default async function handler(req, res) {
         rejectUnauthorized: false, // Accept self-signed certificates
         minVersion: 'TLSv1.2' // Use modern TLS instead of deprecated SSLv3
       },
+      // Try multiple auth methods
+      authMethod: 'PLAIN',
       connectionTimeout: 15000, // 15 seconds
       greetingTimeout: 15000,
       socketTimeout: 15000,
       debug: true, // Enable debug logs
       logger: true
     };
+
+    console.log('SMTP Authentication attempt with:', {
+      user: emailFrom,
+      passwordLength: emailPassword?.length,
+      passwordStart: emailPassword?.substring(0, 3) + '***'
+    });
 
     console.log('Creating SMTP transporter with config:', {
       host: smtpHost,
