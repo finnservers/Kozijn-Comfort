@@ -20,6 +20,16 @@ export default async function handler(req, res) {
   try {
     const orderData = req.body;
 
+    console.log('=== EMAIL API CALLED ===');
+    console.log('Timestamp:', new Date().toISOString());
+    console.log('Environment check:', {
+      hasMailFrom: !!process.env.VITE_MAIL_FROM,
+      hasMailPassword: !!process.env.MAIL_PASSWORD,
+      hasMailTo: !!process.env.MAIL_TO,
+      hasMailHost: !!process.env.VITE_MAIL_HOST,
+      hasMailPort: !!process.env.VITE_MAIL_PORT,
+    });
+
     // Get environment variables
     const emailFrom = process.env.VITE_MAIL_FROM;
     const emailPassword = process.env.MAIL_PASSWORD;
@@ -28,12 +38,15 @@ export default async function handler(req, res) {
     const smtpPort = parseInt(process.env.VITE_MAIL_PORT || '465');
 
     if (!emailFrom || !emailPassword) {
-      console.error('Missing email configuration');
-      return res.status(500).json({ 
-        success: false, 
-        error: 'Email configuration missing. Please add VITE_MAIL_FROM and MAIL_PASSWORD in Vercel environment variables.' 
+      console.error('❌ Missing email configuration');
+      console.error('Available env vars:', Object.keys(process.env).filter(k => k.includes('MAIL')));
+      return res.status(500).json({
+        success: false,
+        error: 'Email configuration missing. Please add VITE_MAIL_FROM and MAIL_PASSWORD in Vercel environment variables.'
       });
     }
+
+    console.log('✅ Email configuration validated');
 
     // Create nodemailer transporter with multiple fallback options
     const transporterOptions = {
@@ -46,11 +59,11 @@ export default async function handler(req, res) {
       },
       tls: {
         rejectUnauthorized: false, // Accept self-signed certificates
-        ciphers: 'SSLv3'
+        minVersion: 'TLSv1.2' // Use modern TLS instead of deprecated SSLv3
       },
-      connectionTimeout: 10000, // 10 seconds
-      greetingTimeout: 10000,
-      socketTimeout: 10000,
+      connectionTimeout: 15000, // 15 seconds
+      greetingTimeout: 15000,
+      socketTimeout: 15000,
       debug: true, // Enable debug logs
       logger: true
     };
