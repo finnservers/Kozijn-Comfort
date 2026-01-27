@@ -92,10 +92,12 @@ export function CheckoutPage() {
     
     try {
       // Send JSON directly to backend
-      const apiUrl = import.meta.env.DEV 
+      const apiUrl = import.meta.env.DEV
         ? 'http://localhost:3001/api/send-order-email'
         : '/api/send-order-email';
-      
+
+      console.log('📤 Sending request to:', apiUrl);
+
       const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
@@ -103,22 +105,33 @@ export function CheckoutPage() {
         },
         body: JSON.stringify(submitData),
       });
-      
+
+      console.log('📥 Response status:', response.status, response.statusText);
+      console.log('📥 Response headers:', Object.fromEntries(response.headers.entries()));
+
       const result = await response.json();
-      
+      console.log('📥 Response data:', result);
+
       if (result.success) {
-        // Show success message
-        alert('Bedankt voor uw aanvraag! We nemen zo snel mogelijk contact met u op.\n\nU ontvangt een bevestigingsmail op het opgegeven e-mailadres.');
-        
+        // Check for warning about email delivery
+        if (result.warning) {
+          console.warn('⚠️ Email warning:', result.warning);
+          alert('Bedankt voor uw aanvraag! We nemen zo snel mogelijk contact met u op.\n\n⚠️ Let op: Er was een probleem met het verzenden van de bevestigingsmail, maar uw bestelling is wel geregistreerd.');
+        } else {
+          console.log('✅ Order submitted successfully with email sent');
+          alert('Bedankt voor uw aanvraag! We nemen zo snel mogelijk contact met u op.\n\nU ontvangt een bevestigingsmail op het opgegeven e-mailadres.');
+        }
+
         // Use setTimeout to ensure alert is closed before navigation
         setTimeout(() => {
           navigate('/overview', { replace: true });
         }, 100);
       } else {
+        console.error('❌ Server returned error:', result.error);
         alert(`Er was een probleem: ${result.error || 'Probeer het later opnieuw.'}`);
       }
     } catch (error) {
-      console.error('Submission error:', error);
+      console.error('❌ Submission error:', error);
       alert('Er was een fout bij het verwerken van uw aanvraag. Probeer het later opnieuw.');
     } finally {
       setIsSubmitting(false);
