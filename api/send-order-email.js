@@ -129,7 +129,7 @@ function formatEmailText(data) {
     .join('\n') || 'No items';
 
   return `
-NIEUWE ORDERAANVRAAG - KOZIJNEN CONFIGURATOR
+NIEUWE ORDERAANVRAAG - KOZIJN COMFORT
 ============================================
 
 CONTACTGEGEVENS:
@@ -349,10 +349,10 @@ Een van onze adviseurs zal binnen 1-2 werkdagen contact met u opnemen om uw wens
 Heeft u vragen of wilt u wijzigingen doorgeven? Neem gerust contact met ons op via info@kozijncomfort.nl
 
 Met vriendelijke groet,
-Het team van Kozijnen Comfort
+Het team van Kozijn Comfort
 
 ============================================
-© ${new Date().getFullYear()} Kozijnen Comfort
+© ${new Date().getFullYear()} Kozijn Comfort
 Dit is een geautomatiseerd bericht.
 Datum: ${new Date().toLocaleString('nl-NL')}
   `;
