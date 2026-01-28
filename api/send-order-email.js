@@ -154,7 +154,7 @@ OPMERKINGEN:
 ${data.remarks || 'Geen opmerkingen'}
 
 ============================================
-Dit bericht is automatisch gegenereerd door de Kozijnen Configurator.
+Dit bericht is automatisch gegenereerd door Kozijn Comfort.
 Datum: ${new Date().toLocaleString('nl-NL')}
   `;
 }
@@ -222,7 +222,7 @@ function formatAdminEmailHTML(data) {
       </div>
 
       <div style="background: #f5f5f5; padding: 20px; text-align: center; font-size: 12px; color: #666; border-top: 1px solid #eee;">
-        <p style="margin: 5px 0;">Dit bericht is automatisch gegenereerd door de Kozijnen Configurator.</p>
+        <p style="margin: 5px 0;">Dit bericht is automatisch gegenereerd door Kozijn Comfort.</p>
         <p style="margin: 5px 0;">Neem contact op met de klant op het bovenstaande e-mailadres of telefoonnummer.</p>
       </div>
     </div>
