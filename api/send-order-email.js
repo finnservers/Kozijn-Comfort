@@ -31,7 +31,7 @@ export default async function handler(req, res) {
     // Get environment variables
     const resendApiKey = process.env.RESEND_API_KEY;
     const emailFrom = process.env.MAIL_FROM || 'info@kozijncomfort.nl';
-    const emailTo = process.env.MAIL_TO || 'finnservers@gmail.com';
+    const emailTo = process.env.MAIL_TO || 'info@kozijncomfort.nl';
 
     if (!resendApiKey) {
       console.error('❌ Missing Resend API key');
@@ -56,9 +56,9 @@ export default async function handler(req, res) {
       // Send email to admin (business owner)
       console.log('📧 Sending admin notification email via Resend...');
       const adminResult = await resend.emails.send({
-        from: `Kozijnen Configurator <${emailFrom}>`,
+        from: `Kozijn Comfort <${emailFrom}>`,
         to: emailTo,
-        subject: `Nieuwe Orderaanvraag - ${orderData.firstName} ${orderData.lastName}`,
+        subject: `Nieuwe configurator-aanvraag - ${orderData.firstName} ${orderData.lastName}`,
         html: adminEmailHTML,
         text: adminEmailText,
       });
