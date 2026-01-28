@@ -71,9 +71,9 @@ export default async function handler(req, res) {
       // Send confirmation email to customer
       console.log('📧 Sending customer confirmation email via Resend...');
       const customerResult = await resend.emails.send({
-        from: `Kozijnen Comfort <${emailFrom}>`,
+        from: `Kozijn Comfort <${emailFrom}>`,
         to: orderData.email,
-        subject: 'Bevestiging van uw aanvraag - Kozijnen Comfort',
+        subject: 'Bevestiging van uw aanvraag - Kozijn Comfort',
         html: customerEmailHTML,
         text: customerEmailText,
       });
