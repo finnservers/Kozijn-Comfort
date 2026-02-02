@@ -113,19 +113,9 @@ export function CheckoutPage() {
       console.log('📥 Response data:', result);
 
       if (result.success) {
-        // Check for warning about email delivery
-        if (result.warning) {
-          console.warn('⚠️ Email warning:', result.warning);
-          alert('Bedankt voor uw aanvraag! We nemen zo snel mogelijk contact met u op.\n\n⚠️ Let op: Er was een probleem met het verzenden van de bevestigingsmail, maar uw bestelling is wel geregistreerd.');
-        } else {
-          console.log('✅ Order submitted successfully with email sent');
-          alert('Bedankt voor uw aanvraag! We nemen zo snel mogelijk contact met u op.\n\nU ontvangt een bevestigingsmail op het opgegeven e-mailadres.');
-        }
-
-        // Use setTimeout to ensure alert is closed before navigation
-        setTimeout(() => {
-          navigate('/overview', { replace: true });
-        }, 100);
+        console.log('✅ Order submitted successfully');
+        // Redirect to thank you page
+        window.location.href = 'https://kozijncomfort.nl/bedankt-pagina';
       } else {
         console.error('❌ Server returned error:', result.error);
         alert(`Er was een probleem: ${result.error || 'Probeer het later opnieuw.'}`);
